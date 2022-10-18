@@ -1,0 +1,229 @@
+<odoo>
+    <data>
+        <template id="ticket_header" name="Ticket header">
+          <div class="row">
+        <div class="col-12" name="company_address">
+          <div>
+            <h2><span t-field="o.company_id.name"/> </h2>
+            <span t-field="o.company_id.partner_id.name"/>
+            <span t-esc="' - '.join([item for item in [                             ', '.join([item for item in [o.company_id.partner_id.street, o.company_id.partner_id.street2] if item]),                             o.company_id.partner_id.city,                             o.company_id.partner_id.state_id and o.company_id.partner_id.state_id.name,                             o.company_id.partner_id.zip,                             o.company_id.partner_id.country_id and o.company_id.partner_id.country_id.name] if item])"/>
+            <span t-if="o.company_id.partner_id.phone">- </span>
+            <span style="white-space: nowrap;" t-esc="'Tel: ' + o.company_id.partner_id.phone" t-if="o.company_id.partner_id.phone"/>- 
+            
+            
+            
+            
+            
+            <span t-field="o.company_id.l10n_ar_afip_responsibility_type_id"/>
+            <span>- CUIT: </span>
+            <span t-field="o.company_id.partner_id.l10n_ar_formatted_vat"/>
+            <span>- IIBB: </span>
+            <span t-esc="o.company_id.l10n_ar_gross_income_type == 'exempt' and 'Exento' or o.company_id.l10n_ar_gross_income_number"/>
+            <span>- Inicio de actividades: </span>
+            <span t-field="o.company_id.l10n_ar_afip_start_date"/></div>
+        </div>
+      </div>
+    </template>
+    <template id="ticket_layout">
+      <t t-if="not o" t-set="o" t-value="doc"/>
+      <t t-if="not company">
+        <!-- Multicompany -->
+        <t t-if="company_id">
+          <t t-set="company" t-value="company_id"/>
+        </t>
+        <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+          <t t-set="company" t-value="o.company_id.sudo()"/>
+        </t>
+        <t t-else="else">
+          <t t-set="company" t-value="res_company"/>
+        </t>
+      </t>
+      <div class="article text-monospace" style="font-size:0.8em;" t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')" t-att-data-oe-model="o and o._name">
+        <t t-call="nahe_80mm_invoice_ticket.ticket_header"/>
+        <t t-raw="0"/>
+      </div>
+    </template>
+    <template id="invoice_ticket_footer" name="Ticket footer"/>
+    <template id="invoice_ticket_document" name="Ticket Factura">
+      <t t-call="nahe_80mm_invoice_ticket.ticket_layout">
+        <t t-set="o" t-value="o.with_context(lang=lang)"/>
+        <t t-set="document_letter" t-value="o.l10n_latam_document_type_id.l10n_ar_letter"/>
+        <t t-set="report_name" t-value="o.l10n_latam_document_type_id.report_name"/>
+        <t t-set="document_legend" t-value="o.l10n_latam_document_type_id.code and 'Cod. %02d' % int(o.l10n_latam_document_type_id.code) or ''"/>
+        <div class="page">
+          <div class="row  bg-200 pt-2 pb-2">
+            <div class="col-8">
+              <strong t-esc="report_name"/>
+              <br/>
+              <strong t-esc="o.display_name"/>
+            </div>
+            <div class="col-4">
+              <div class="text-center" name="center-upper">
+                <span style="display: inline-block; text-align: center; line-height: 8px;">
+                  <h1 style="line-height: 25px;">
+                    <strong>
+                      <span t-esc=" document_letter"/>
+                    </strong>
+                  </h1>
+                  <span style="font-size: x-small;" t-esc="document_legend"/>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <strong t-field="o.partner_id.commercial_partner_id.name"/>
+              <!-- (15) Domicilio Comercial -->
+              <br/>
+              <span t-field="o.partner_id" t-options="{'widget': 'contact', 'fields': ['address'], 'no_marker': true, 'no_tag_br': True}"/>
+              <span t-field="o.partner_id.l10n_ar_afip_responsibility_type_id"/>
+              <t t-if="o.partner_id.vat and o.partner_id.l10n_latam_identification_type_id and o.partner_id.l10n_latam_identification_type_id.l10n_ar_afip_code != '99'">
+                <br/>
+                <t id="inv_tax_id_label" t-esc="o.partner_id.l10n_latam_identification_type_id.name or o.company_id.country_id.vat_label"/>:            
+                
+                
+                
+                
+                <span t-esc="o.partner_id.l10n_ar_formatted_vat if o.partner_id.l10n_latam_identification_type_id.is_vat else o.partner_id.vat"/></t>
+            </div>
+          </div>
+          <div class="row text-white bg-800 mt-2 mb-2" style="border-bottom: 1px dotted #333">
+            <div class="col-8"/>
+          </div>
+          <t t-set="current_subtotal" t-value="0"/>
+          <t t-set="lines" t-value="o.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"/>
+          <t t-as="line" t-foreach="lines">
+            <t t-set="current_subtotal" t-value="current_subtotal + line.price_total"/>
+            <div t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
+              <t name="account_invoice_line_accountable" t-if="not line.display_type">
+                <div t-attf-class="row">
+                  <div class="col-8">
+                    <div name="account_invoice_line_name">
+                      <span t-esc="int(line.quantity)"/>
+                      <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                    </div>
+                    <div t-if="line.discount">Descuento %
+                      
+                      
+                      
+                      
+                      <span class="text-nowrap" t-field="line.discount"/></div>
+                  </div>
+                  <div class="col-4 text-right">
+                    <span t-field="line.price_total" style="font-size:0.9em;" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                  </div>
+                </div>
+              </t>
+              <t t-if="line.display_type == 'line_section'">
+                <div class="row">
+                  <div class="col-8 bg-800 text-white">
+                    <strong t-field="line.name" t-options="{'widget': 'text'}"/>
+                  </div>
+                </div>
+              </t>
+              <t t-if="line.display_type == 'line_note'">
+                <div class="row">
+                  <div class="col-8 ">
+                    <strong t-field="line.name" t-options="{'widget': 'text'}"/>
+                  </div>
+                </div>
+              </t>
+            </div>
+          </t>
+          <t t-as="tax_totals_json" t-foreach="o.tax_totals_json">
+            <div class="row" t-if="o.l10n_latam_document_type_id.l10n_ar_letter == 'A'">
+              <div class="col-12  text-right">
+                <t t-if="len(o.line_ids.filtered(lambda line: line.tax_line_id)) in [0, 1] and o.amount_untaxed == tax_totals_json[2]">
+                  <span class="text-nowrap" t-esc="tax_totals_json[0]"/>
+                  <span class="text-nowrap" t-esc="tax_totals_json[3]"/>
+                </t>
+                <t t-else="">
+                  <span t-esc="tax_totals_json[0]"/>
+                  <span class="text-nowrap">on
+                    
+            
+                    
+                    <t t-esc="tax_totals_json[4]"/></span>
+                  <span class="text-nowrap" t-esc="tax_totals_json[3]"/>
+                </t>
+              </div>
+            </div>
+          </t>
+          <div class="row pt-3" t-if="o.l10n_latam_document_type_id.l10n_ar_letter == 'A'">
+            <div class="col-12  text-right">
+              Subtotal 
+                
+                <span t-field="o.amount_untaxed" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+            </div>
+          </div>
+
+          <div class="row  pt-3 pb-3">
+            <div class="col-12 text-right">
+              <h4>Total: 
+                
+                <span t-esc="o.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/></h4>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12 text-center" t-if="o.move_type == 'out_invoice'">
+              <strong>Gracias por su compra</strong>
+            </div>
+          </div>
+          <p t-if="o.partner_id.l10n_ar_afip_responsibility_type_id.code in ['6', '13'] and o.l10n_latam_document_type_id.l10n_ar_letter == 'A'">El crédito fiscal discriminado en el presente comprobante, sólo podrá ser computado a efectos del Régimen de Sostenimiento e Inclusión Fiscal para Pequeños Contribuyentes de la Ley Nº 27.618
+            </p>
+          <div class="row">
+            <div class="col-12 text-center">
+              <img alt="qr" style="height:200px" t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('QR', o.afip_qr_code, 200,200)" t-if="o.afip_qr_code"/>
+            </div>
+          </div>
+          <div class="row" t-if="o.afip_auth_code">
+            <div class="col-6">
+              <span t-field="o.afip_auth_mode"/>: 
+              
+              
+              <span t-field="o.afip_auth_code"/></div>
+            <div class="col-6">
+              <span t-field="o.afip_auth_mode"/>vencimiento: 
+              
+              
+              <span t-field="o.afip_auth_code_due"/></div>
+          </div>
+        </div>
+      </t>
+    </template>
+    <template id="invoice_ticket" name="Ticket Factura">
+      <t t-call="web.html_container">
+        <t t-as="o" t-foreach="docs">
+          <t t-set="lang" t-value="o.invoice_user_id.sudo().lang if o.move_type in ('in_invoice', 'in_refund') else o.partner_id.lang"/>
+          <t t-call="nahe_80mm_invoice_ticket.invoice_ticket_document" t-lang="lang"/>
+        </t>
+      </t>
+    </template>
+        <record id="paperformat_factura_80mm" model="report.paperformat">
+            <field name="name">Modelo Factura 80mm</field>
+            <field name="default" eval="False"/>
+            <field name="format">custom</field>
+            <field name="page_height">300</field>
+            <field name="page_width">80</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">3</field>
+            <field name="margin_bottom">3</field>
+            <field name="margin_left">3</field>
+            <field name="margin_right">3</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">35</field>
+            <field name="dpi">110</field>
+        </record>
+
+        <report
+            id="action_report_factura_80mm"
+            model="account.move"
+            string="Factura 80mm"
+            report_type="qweb-pdf"
+            paperformat="nahe_80mm_invoice_ticket.paperformat_factura_80mm"
+            name="nahe_80mm_invoice_ticket.invoice_ticket"
+            file="nahe_80mm_invoice_ticket.invoice_ticket"
+        />
+
+    </data>
+</odoo>

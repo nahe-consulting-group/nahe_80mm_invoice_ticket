@@ -1,0 +1,60 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+<!--
+    <record model="ir.ui.view" id="nahe_80mm_invoice_ticket.list">
+      <field name="name">nahe_80mm_invoice_ticket list</field>
+      <field name="model">nahe_80mm_invoice_ticket.nahe_80mm_invoice_ticket</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="value"/>
+          <field name="value2"/>
+        </tree>
+      </field>
+    </record>
+-->
+
+    <!-- actions opening views on models -->
+<!--
+    <record model="ir.actions.act_window" id="nahe_80mm_invoice_ticket.action_window">
+      <field name="name">nahe_80mm_invoice_ticket window</field>
+      <field name="res_model">nahe_80mm_invoice_ticket.nahe_80mm_invoice_ticket</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+-->
+
+    <!-- server action to the one above -->
+<!--
+    <record model="ir.actions.server" id="nahe_80mm_invoice_ticket.action_server">
+      <field name="name">nahe_80mm_invoice_ticket server</field>
+      <field name="model_id" ref="model_nahe_80mm_invoice_ticket_nahe_80mm_invoice_ticket"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": model._name,
+        }
+      </field>
+    </record>
+-->
+
+    <!-- Top menu item -->
+<!--
+    <menuitem name="nahe_80mm_invoice_ticket" id="nahe_80mm_invoice_ticket.menu_root"/>
+-->
+    <!-- menu categories -->
+<!--
+    <menuitem name="Menu 1" id="nahe_80mm_invoice_ticket.menu_1" parent="nahe_80mm_invoice_ticket.menu_root"/>
+    <menuitem name="Menu 2" id="nahe_80mm_invoice_ticket.menu_2" parent="nahe_80mm_invoice_ticket.menu_root"/>
+-->
+    <!-- actions -->
+<!--
+    <menuitem name="List" id="nahe_80mm_invoice_ticket.menu_1_list" parent="nahe_80mm_invoice_ticket.menu_1"
+              action="nahe_80mm_invoice_ticket.action_window"/>
+    <menuitem name="Server to list" id="nahe_80mm_invoice_ticket" parent="nahe_80mm_invoice_ticket.menu_2"
+              action="nahe_80mm_invoice_ticket.action_server"/>
+-->
+  </data>
+</odoo>
