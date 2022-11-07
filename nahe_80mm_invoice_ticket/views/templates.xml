@@ -173,7 +173,7 @@
             </p>
           <div class="row">
             <div class="col-12 text-center">
-              <img alt="qr" style="height:200px" t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('QR', o.l10n_ar_afip_qr_code, 200,200)" t-if="o.afip_qr_code"/>
+              <img alt="qr" style="height:200px" t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('QR', o.l10n_ar_afip_qr_code, 200,200)" t-if="o.l10n_ar_afip_qr_code"/>
             </div>
           </div>
           <div class="row" t-if="o.afip_auth_code">
