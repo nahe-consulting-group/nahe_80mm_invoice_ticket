@@ -130,21 +130,21 @@
               </t>
             </div>
           </t>
-          <t t-as="tax_totals_json" t-foreach="o.tax_totals_json">
+          <t t-as="amount_by_group" t-foreach="o.amount_by_group">
             <div class="row" t-if="o.l10n_latam_document_type_id.l10n_ar_letter == 'A'">
               <div class="col-12  text-right">
-                <t t-if="len(o.line_ids.filtered(lambda line: line.tax_line_id)) in [0, 1] and o.amount_untaxed == tax_totals_json[2]">
-                  <span class="text-nowrap" t-esc="tax_totals_json[0]"/>
-                  <span class="text-nowrap" t-esc="tax_totals_json[3]"/>
+                <t t-if="len(o.line_ids.filtered(lambda line: line.tax_line_id)) in [0, 1] and o.amount_untaxed == amount_by_group[2]">
+                  <span class="text-nowrap" t-esc="amount_by_group[0]"/>
+                  <span class="text-nowrap" t-esc="amount_by_group[3]"/>
                 </t>
                 <t t-else="">
-                  <span t-esc="tax_totals_json[0]"/>
+                  <span t-esc="amount_by_group[0]"/>
                   <span class="text-nowrap">on
                     
             
                     
-                    <t t-esc="tax_totals_json[4]"/></span>
-                  <span class="text-nowrap" t-esc="tax_totals_json[3]"/>
+                    <t t-esc="amount_by_group[4]"/></span>
+                  <span class="text-nowrap" t-esc="amount_by_group[3]"/>
                 </t>
               </div>
             </div>
@@ -173,7 +173,7 @@
             </p>
           <div class="row">
             <div class="col-12 text-center">
-              <img alt="qr" style="height:200px" t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('QR', o.afip_qr_code, 200,200)" t-if="o.afip_qr_code"/>
+              <img alt="qr" style="height:200px" t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('QR', o.l10n_ar_afip_qr_code, 200,200)" t-if="o.l10n_ar_afip_qr_code"/>
             </div>
           </div>
           <div class="row" t-if="o.afip_auth_code">
